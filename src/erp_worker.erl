@@ -1,6 +1,5 @@
 -module(erp_worker).
 -behaviour(gen_server).
--behaviour(poolboy_worker).
 
 -export([start_link/1]).
 -export([init/1, terminate/2, code_change/3]).
@@ -18,6 +17,7 @@ init(Args) ->
     Host = proplists:get_value(host, Args),
     Port = proplists:get_value(port, Args),
     {ok, C} = eredis:start_link(Host, Port),
+    pg2:join(erp, self()),
     {ok, #st{conn=C}}.
 
 handle_call({q, Command, Timeout}, _From, #st{conn=C}=State) ->
